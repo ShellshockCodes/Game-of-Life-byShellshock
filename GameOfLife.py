@@ -1,6 +1,8 @@
 from graphics import *
 from time import sleep
 from itertools import product
+import cProfile
+import re
 xcoord = 40
 ycoord = 40
 
@@ -21,31 +23,31 @@ def check(D, x, y, log1, log2):
     global logd
     logb = []
     logd = []
-    if D[1][2 * ((x - 1) * xcoord + y) + 1] == "a":  # left
+    if D[2 * ((x - 1) * xcoord + y) + 1] == "a":  # left
         counter += 1
-    if D[1][2 * ((x + 1) * xcoord + y) + 1] == "a":  # right
+    if D[2 * ((x + 1) * xcoord + y) + 1] == "a":  # right
         counter += 1
-    if D[1][2 * (x * xcoord + y + 1) + 1] == "a":  # up
+    if D[2 * (x * xcoord + y + 1) + 1] == "a":  # up
         counter += 1
-    if D[1][2 * (x * xcoord + y - 1) + 1] == "a":  # down
+    if D[2 * (x * xcoord + y - 1) + 1] == "a":  # down
         counter += 1
-    if D[1][2 * ((x - 1) * xcoord + y + 1) + 1] == "a":  # left - up
+    if D[2 * ((x - 1) * xcoord + y + 1) + 1] == "a":  # left - up
         counter += 1
-    if D[1][2 * ((x - 1) * xcoord + y - 1) + 1] == "a":  # left - down
+    if D[2 * ((x - 1) * xcoord + y - 1) + 1] == "a":  # left - down
         counter += 1
-    if D[1][2 * ((x + 1) * xcoord + y + 1) + 1] == "a":  # right - up
+    if D[2 * ((x + 1) * xcoord + y + 1) + 1] == "a":  # right - up
         counter += 1
-    if D[1][2 * ((x + 1) * xcoord + y - 1) + 1] == "a":  # right - down
+    if D[2 * ((x + 1) * xcoord + y - 1) + 1] == "a":  # right - down
         counter += 1
     if counter < 2 or counter > 3:
-        if D[1][2 * (x * xcoord + y) + 1] == "a":
+        if D[2 * (x * xcoord + y) + 1] == "a":
             logd = [x, y]
             log1.append(logd)
             return 0
     if counter == 2:
         return 1
     if counter == 3:
-        if D[1][2 * (x * xcoord + y) + 1] == "d":
+        if D[2 * (x * xcoord + y) + 1] == "d":
             logb = [x, y]
             log2.append(logb)
             return 2
@@ -56,8 +58,6 @@ def main():
     win = GraphWin("Game Of Life", 500, 500)
     win.setCoords(0, 0, xcoord, ycoord)
     c_list = []
-    cellsx = []
-    cellsy = []
     for x in range(xcoord):
         for y in range(ycoord):
             rec = Rectangle(Point(x, y), Point(x + 1, y + 1))
@@ -65,20 +65,18 @@ def main():
             rec.setOutline("grey25")
             rec.draw(win)
             state = ["d"] # append "dead" after every cell created to figure out which one is dead-alive
-            cellsy.append(y)
-            cellsy.append(state[0])
-        cellsx.append(x)
-    c_list.append(cellsx)
-    c_list.append(cellsy)
+            c_list.append(rec)
+            c_list.append(state[0])
+    print(c_list)
 
     def createcell(x, y):
         formula(x, y)
-        rec = Rectangle(Point(x, y), Point(x + 1, y + 1))
+        rec = c_list[formula(x, y) - 1]
         rec.undraw()
         rec.setFill("white")
         rec.setOutline("grey25")
         rec.draw(win)
-        c_list[1][formula(x, y)] = "a"
+        c_list[formula(x, y)] = "a"
 
 
     # create alive cells. yes, I do not know how to create them with my mouse.
@@ -124,7 +122,7 @@ def main():
 
 
 
-    sleep(0)
+    sleep(5)
     while True:
         log_dead = []
         log_born = []
@@ -135,24 +133,27 @@ def main():
         for a in range(len(log_dead)):
             logx = log_dead[a][0]
             logy = log_dead[a][1]
-            rec = Rectangle(Point(logx, logy), Point(logx + 1, logy + 1))
+            rec = c_list[2 * (logx * xcoord + logy)]
             rec.undraw()
+            sleep(0)
             rec.setFill("grey18")
             rec.setOutline("grey25")
             rec.draw(win)
-            c_list[1][2 * (logx * xcoord + logy) + 1] = "d"
+            c_list[2 * (logx * xcoord + logy) + 1] = "d"
             sleep(0)
 
         for a in range(len(log_born)):
             logx = log_born[a][0]
             logy = log_born[a][1]
-            rec = Rectangle(Point(logx, logy), Point(logx + 1, logy + 1))
+            rec = c_list[2 * (logx * xcoord + logy)]
             rec.undraw()
+            sleep(0)
             rec.setFill("white")
             rec.setOutline("grey25")
             rec.draw(win)
-            c_list[1][2 * (logx * xcoord + logy) + 1] = "a"
+            c_list[2 * (logx * xcoord + logy) + 1] = "a"
             sleep(0)
+
 
 
 main()
